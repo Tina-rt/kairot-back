@@ -19,6 +19,8 @@ api.add_resource(SignUp, '/signup')
 api.add_resource(ResetPassword, '/resetPassword')
 api.add_resource(VerifyToken, '/verifyToken')
 api.add_resource(Logout, '/logout')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 

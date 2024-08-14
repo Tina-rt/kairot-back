@@ -41,14 +41,15 @@ class AudioToText(Resource):
                    {"start": 1.8, "end": 2.4, "text": "ing to pick up"}
                 ]
             }
-            time.sleep(4)
+            print("File content type", file.content_type)
+            # time.sleep(4)
             print("Fetching text from audio...")
             try:
-                # result = audioToText(file.read())
+                result = audioToText(file.read(), file.content_type)
                 # result = json.loads(result)
-                result = self.process_response(result)
-            except:
-                return {'error': 'Something went wrong (Audio may unsafe)'}, 500
+                # result = self.process_response(result)
+            except Exception as e:
+                return {'error': 'Something went wrong (Audio may unsafe)', 'error_message': str(e)}, 500
             return result
         return {'error': 'No file part'}, 400
             # return {'message': 'File transferred successfully', 'filename': filename}, 200
