@@ -1,0 +1,100 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+wheels/
+pip-wheel-metadata/
+*.dist-info/
+.installed.cfg
+*.egg-info/
+lib/
+lib64/
+__pypackages__/
+sample/
+*.ogg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+.env/
+
+# Pyenv
+.python-version
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Pytest
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# Mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pyright type checker
+.pyright/
+
+# Coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.coverage*
+.cache/
+
+# IDEs
+.idea/
+*.iml
+
+# Testing
+test_output/
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
