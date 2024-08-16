@@ -27,14 +27,20 @@ class AudioToText(Resource):
     def post(self):
         print("Parsing file...")
         if 'Authorization' not in request.headers:
+            print("No token")
             return {'error': 'No token'}, 400
+        if request.headers['Authorization'] == '':
+            print("Empty token")
+            return {'error': 'Empty token'}, 400
         parser = reqparse.RequestParser()
         parser.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files')
         args = parser.parse_args()
 
         if 'file' not in args:
+            print("No file")
             return {'error': 'No file part'}, 400
         file = args['file']
+        print("Token: ", request.headers['Authorization'])
         jwt_decoded = jwt.decode(request.headers['Authorization'], options={"verify_signature": False})
         if 'user_id' not in jwt_decoded:
             return {'error': 'Invalid token'}, 400
@@ -55,13 +61,13 @@ class AudioToText(Resource):
             print("Fetching text from audio...")
             try:
                 file_byte = file.read()
-                result = audioToText(file_byte, file.content_type)
-                # result = json.loads(result)
+                # result = audioToText(file_byte, file.content_type)
+                # # result = json.loads(result)
                 result = self.process_response(result)
-                upload_output = newTranscript(result, user_id, file_byte, filename)
-                print(upload_output)
-                if 'error' in upload_output:
-                    return {'error': upload_output['error'], 'error_message': upload_output['error_message']}, 500
+                # upload_output = newTranscript(result, user_id, file_byte, filename)
+                # print(upload_output)
+                # if 'error' in upload_output:
+                #     return {'error': upload_output['error'], 'error_message': upload_output['error_message']}, 500
             except Exception as e:
                 return {'error': 'Something went wrong (Audio may unsafe)', 'error_message': str(e)}, 500
             return result

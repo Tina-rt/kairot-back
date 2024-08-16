@@ -1,3 +1,4 @@
+import time
 from flask_restful import Resource
 from flask import request, session
 from db.firebase_db import firebase
@@ -35,11 +36,14 @@ class SignUp(Resource):
             return {'error': 'Missing email or password'}, 400
         if data['email'] and data['password']:
             try:
+                user = {'message': 'sucesss'}, 200
                 user = auth.create_user_with_email_and_password(data['email'], data['password'])
+                if 'name' in data:
+                    user = auth.update_profile(user['idToken'], display_name=data['name'])
+                return user
             except Exception as e:
                 print(e)
                 return {'error': str(e)}, 500
-            return user
         return data
     
 class ResetPassword(Resource):
@@ -73,4 +77,3 @@ class VerifyToken(Resource):
                 if session['token'] == data['token']:
                     return {'message': 'Token verified'}, 200
         return {'error': 'Invalid token'}, 400
-            

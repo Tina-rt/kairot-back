@@ -33,9 +33,11 @@ def newTranscript(transcripted, user_id, audio_file: bytes, audio_name: str):
 def getTranscript(user_id):
     try:
         docs = db.collection(user_id).get()
+        result = []
         for doc in docs:
-            print(doc.to_dict())
-        return doc
+            # print(doc.to_dict())
+            result.append(doc.to_dict())
+        return result
     except Exception as e: return {'error': 'Failed to get transcript', 'error_message': str(e)}, 500
 # print(newTranscript({
 #   "timeline": [
