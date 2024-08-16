@@ -1,19 +1,6 @@
 from flask_restful import Resource
 from flask import request, session
-import pyrebase
-
-firebaseConfig = {
-  "apiKey": "AIzaSyBZsN6q3radjhi8RYsxLutVCNwBOpm6558",
-  "authDomain": "kairot-bc1ec.firebaseapp.com",
-  "projectId": "kairot-bc1ec",
-  "storageBucket": "kairot-bc1ec.appspot.com",
-  "messagingSenderId": "570794221326",
-  "appId": "1:570794221326:web:5fa4affe0767840392415f",
-  "databaseURL": ''
-}
-
-firebase = pyrebase.initialize_app(firebaseConfig)
-
+from db.firebase_db import firebase
 auth = firebase.auth()
 class Login(Resource):
     def get(self):

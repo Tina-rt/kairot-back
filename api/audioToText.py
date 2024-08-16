@@ -1,9 +1,12 @@
 import json
 from flask_restful import Resource, reqparse
+from flask import request
 import werkzeug
 from werkzeug.utils import secure_filename
 import os, time
 from ai.audioToText import audioToText
+from db.dbhandling import newTranscript
+import jwt
 
 UPLOAD_FOLDER = 'uploads'
 
@@ -23,6 +26,8 @@ class AudioToText(Resource):
         return response
     def post(self):
         print("Parsing file...")
+        if 'Authorization' not in request.headers:
+            return {'error': 'No token'}, 400
         parser = reqparse.RequestParser()
         parser.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files')
         args = parser.parse_args()
@@ -30,6 +35,10 @@ class AudioToText(Resource):
         if 'file' not in args:
             return {'error': 'No file part'}, 400
         file = args['file']
+        jwt_decoded = jwt.decode(request.headers['Authorization'], options={"verify_signature": False})
+        if 'user_id' not in jwt_decoded:
+            return {'error': 'Invalid token'}, 400
+        user_id = jwt_decoded['user_id']
         if file:
             filename = secure_filename(file.filename)
             # result = ''
@@ -42,12 +51,17 @@ class AudioToText(Resource):
                 ]
             }
             print("File content type", file.content_type)
-            # time.sleep(4)
+            # time.sleep(2)
             print("Fetching text from audio...")
             try:
-                result = audioToText(file.read(), file.content_type)
+                file_byte = file.read()
+                result = audioToText(file_byte, file.content_type)
                 # result = json.loads(result)
-                # result = self.process_response(result)
+                result = self.process_response(result)
+                upload_output = newTranscript(result, user_id, file_byte, filename)
+                print(upload_output)
+                if 'error' in upload_output:
+                    return {'error': upload_output['error'], 'error_message': upload_output['error_message']}, 500
             except Exception as e:
                 return {'error': 'Something went wrong (Audio may unsafe)', 'error_message': str(e)}, 500
             return result

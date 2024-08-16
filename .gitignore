@@ -38,7 +38,8 @@ env/
 .venv/
 .ENV/
 .env/
-
+key/
+.env
 # Pyenv
 .python-version
 
