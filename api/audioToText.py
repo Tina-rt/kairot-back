@@ -61,13 +61,12 @@ class AudioToText(Resource):
             print("Fetching text from audio...")
             try:
                 file_byte = file.read()
-                # result = audioToText(file_byte, file.content_type)
-                # # result = json.loads(result)
+                result = audioToText(file_byte, file.content_type)
                 result = self.process_response(result)
-                # upload_output = newTranscript(result, user_id, file_byte, filename)
+                upload_output = newTranscript(result, user_id, file_byte, filename)
                 # print(upload_output)
-                # if 'error' in upload_output:
-                #     return {'error': upload_output['error'], 'error_message': upload_output['error_message']}, 500
+                if 'error' in upload_output:
+                    return {'error': upload_output['error'], 'error_message': upload_output['error_message']}, 500
             except Exception as e:
                 return {'error': 'Something went wrong (Audio may unsafe)', 'error_message': str(e)}, 500
             return result

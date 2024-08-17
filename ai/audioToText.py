@@ -15,7 +15,7 @@ model = genai.GenerativeModel("gemini-1.5-flash", generation_config={
 
 def audioToText(audio:bytes, mimetype, language=None) -> dict:
     if language is None:
-        prompt = "Transcribe this audio into this format {\n                \"timeline\": [\n                   {\"start\": 111.0, \"end\": 112.0, \"text\": \"Every two weeks\"},\n                   {\"start\": 1.0, \"end\": 1.5, \"text\": \"things are going well\"}, \n                   {\"start\": 1.5, \"end\": 1.8, \"text\": \"and business is start\"}, \n                   {\"start\": 1.8, \"end\": 2.4, \"text\": \"ing to pick up\"}\n                ]\n            }\n"
+        prompt = "Transcribe this audio into this format {\n                \"timeline\": [\n                   {\"start\": 00:01, \"end\": 00:02, \"text\": \"Every two weeks\"},\n                   {\"start\": 00:00:02:20, \"end\": 00:00:03:03, \"text\": \"things are going well\"}, \n                   {\"start\": 00:00:04:04, \"end\": 00:00:05:15, \"text\": \"and business is start\"}, \n                   {\"start\": 1.8, \"end\": 2.4, \"text\": \"ing to pick up\"}\n                ]\n            }\n"
     else:
         prompt = f"Transcribe the following audio in json format in {language} with range timeline: "
     response = model.generate_content([prompt, {

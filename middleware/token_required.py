@@ -10,6 +10,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, options={"verify_signature": False})
             current_user = data
+            print(current_user)
         except Exception as e:
             print(e)
             return {'error': 'Invalid token'}, 400
