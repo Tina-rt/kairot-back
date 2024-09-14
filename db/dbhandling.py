@@ -6,8 +6,10 @@ else:
 import json, datetime
 from io import BytesIO
 
-
+LIMIT = 4
 def newTranscript(transcripted, user_id, audio_file: bytes, audio_name: str):
+    if getTranscriptCount(user_id) >= LIMIT:
+        return {'error': 'You have reached the limit of transcripts'}, 400
     try:
         try:
             bucket = storage.bucket()
@@ -39,6 +41,14 @@ def getTranscript(user_id):
             result.append(doc.to_dict())
         return result[::-1]
     except Exception as e: return {'error': 'Failed to get transcript', 'error_message': str(e)}, 500
+
+def getTranscriptCount(user_id):
+    try:
+        docs = db.collection(user_id).count()
+        document_count = docs.get()[0][0].value
+        return int(document_count)
+    except Exception as e: return {'error': 'Failed to get transcript', 'error_message': str(e)}, 500
+
 # print(newTranscript({
 #   "timeline": [
 #     {
@@ -67,3 +77,5 @@ def getTranscript(user_id):
 # }, 'p8EkDSj9Z3bsb4qXBvXSp1aLp4p1'))
 
 # print(getTranscript('p8EkDSj9Z3bsb4qXBvXSp1aLp4p1'))
+
+# print(getTranscriptCount('IyuWPU7vhJPeLU6jyDh1QedPXAu2'))
