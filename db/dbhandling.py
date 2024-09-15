@@ -8,8 +8,6 @@ from io import BytesIO
 
 LIMIT = 4
 def newTranscript(transcripted, user_id, audio_file: bytes, audio_name: str):
-    if getTranscriptCount(user_id) >= LIMIT:
-        return {'error': 'You have reached the limit of transcripts'}, 400
     try:
         try:
             bucket = storage.bucket()

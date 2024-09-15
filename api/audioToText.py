@@ -5,7 +5,7 @@ import werkzeug
 from werkzeug.utils import secure_filename
 import os, time
 from ai.audioToText import audioToText
-from db.dbhandling import newTranscript
+from db.dbhandling import LIMIT, getTranscriptCount, newTranscript
 import jwt
 
 UPLOAD_FOLDER = 'uploads'
@@ -61,6 +61,9 @@ class AudioToText(Resource):
             print("Fetching text from audio...")
             try:
                 file_byte = file.read()
+                total_transcript = getTranscriptCount(user_id)
+                if total_transcript > LIMIT:
+                    return {'error': 'Limit exceed', 'error_message': 'You reach the upload limit'}, 400
                 result = audioToText(file_byte, file.content_type)
                 result = self.process_response(result)
                 upload_output = newTranscript(result, user_id, file_byte, filename)

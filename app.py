@@ -5,6 +5,7 @@ from flask_restful import Api
 from api.audioToText import AudioToText
 from api.auth import Login, Logout, SignUp, ResetPassword, VerifyToken
 from api.documents import Documents
+from api.verify_plan import VerifyPlan
 
 
 app = Flask(__name__)
@@ -21,6 +22,7 @@ api.add_resource(ResetPassword, '/resetPassword')
 api.add_resource(VerifyToken, '/verifyToken')
 api.add_resource(Logout, '/logout')
 api.add_resource(Documents, '/documents')
+api.add_resource(VerifyPlan, '/limitIsReach')
 
 if __name__ == '__main__':
     app.run(debug=True)
