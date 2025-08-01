@@ -1,7 +1,7 @@
 import time
 from flask_restful import Resource
 from flask import request, session
-from db.firebase_db import firebase
+from app.db.firebase_db import firebase
 auth = firebase.auth()
 class Login(Resource):
     def get(self):

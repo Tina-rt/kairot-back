@@ -1,26 +1,31 @@
 if __name__ == '__main__':
     from firebase_db import db, storage
 else:
-    from db.firebase_db import db, storage
+    from app.db.firebase_db import db, storage
 
 import json, datetime
 from io import BytesIO
 
-LIMIT = 4
+
+bucket = storage.bucket()
+
+LIMIT = 200
 def newTranscript(transcripted, user_id, audio_file: bytes, audio_name: str):
     try:
         try:
-            bucket = storage.bucket()
             blob = bucket.blob(audio_name)
             blob.upload_from_file(BytesIO(audio_file))
-        except Exception as e: return {'error': 'Failed to upload transcript', 'error_message': str(e)}, 500
+        except Exception as e: 
+            print(e)
+            return {'error': 'Failed to upload transcript', 'error_message': str(e)}, 500
         
         
         data = {
             'transcripted': transcripted,
             'created_at': datetime.datetime.now().isoformat(),
             'audio_file': blob.public_url,
-            'audio_filename': audio_name
+            'audio_filename': audio_name,
+            'status': 0
         }
         doc_ref = db.collection(user_id).document()
         doc_ref.set(data)
@@ -28,7 +33,16 @@ def newTranscript(transcripted, user_id, audio_file: bytes, audio_name: str):
         # user_ref = db.
     except Exception as e: 
         return {'error': 'Failed to upload transcript', 'error_message': str(e)}, 500
-    return {'message': 'Transcript uploaded'}, 200
+    return {'message': 'Transcript uploaded', 'doc_ref': doc_ref}, 200
+
+def updateTranscription(user_id, transcript_id, field, field_value):
+    try:
+        db.collection(user_id).document(transcript_id).update({field: field_value})
+        return {'message': f"Update {field} to {field_value} successful"}, 200
+    except Exception as e:
+        print("Error updating transcription. Exception: ", e)
+        return {'message': 'Error updating transcription.', 'info': str(e)}, 500
+
 
 def getTranscript(user_id):
     try:
@@ -36,7 +50,9 @@ def getTranscript(user_id):
         result = []
         for doc in docs:
             # print(doc.to_dict())
-            result.append(doc.to_dict())
+            data = doc.to_dict()
+            data['id'] = doc.id
+            result.append(data)
         return result[::-1]
     except Exception as e: return {'error': 'Failed to get transcript', 'error_message': str(e)}, 500
 
@@ -46,6 +62,24 @@ def getTranscriptCount(user_id):
         document_count = docs.get()[0][0].value
         return int(document_count)
     except Exception as e: return {'error': 'Failed to get transcript', 'error_message': str(e)}, 500
+
+def deleteTranscript(user_id, transcript_id):
+    try:
+        docs = db.collection(user_id).document(transcript_id)
+        print("=====\n",docs)
+        doc_get = docs.get()
+        audio_blob = bucket.blob(doc_get.to_dict()['audio_filename'])
+        # print(docs)
+        docs.delete()
+        try:
+            audio_blob.delete()
+        except:
+            pass
+        return {'message': "Documents deleted successfully"}, 200
+    except Exception as e:
+        print(e)
+        return {'error': "Failed to delete", "error_message": str(e)}, 500
+    
 
 # print(newTranscript({
 #   "timeline": [

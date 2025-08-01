@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from flask import request, session
-from db.dbhandling import LIMIT, getTranscript, getTranscriptCount
-from middleware.token_required import token_required
+from app.db.dbhandling import LIMIT, getTranscript, getTranscriptCount
+from app.middleware.token_required import token_required
 
 
 class VerifyPlan(Resource):

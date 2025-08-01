@@ -4,8 +4,9 @@ from flask import request
 import werkzeug
 from werkzeug.utils import secure_filename
 import os, time
-from ai.audioToText import audioToText
-from db.dbhandling import LIMIT, getTranscriptCount, newTranscript
+from app.ai.audioToText import Transcripted, audioToText
+from app.db.dbhandling import LIMIT, getTranscriptCount, newTranscript
+from app.task import transcribe_audio
 import jwt
 
 UPLOAD_FOLDER = 'uploads'
@@ -14,16 +15,18 @@ class AudioToText(Resource):
     def get(self):
         return "Hello, World!"
     
-    def process_response(self, response):
+    def process_response(self, response: list[Transcripted]):
         concat_timeline = ''
         concat_timeline_text = ''
-        if 'timeline' in response:
-            for item in response['timeline']:
-                concat_timeline += item['text'] + ' '
-                concat_timeline_text += f'{item["start"]}-{item["end"]} : {item["text"]}\n'
-            response['timeline_text'] = concat_timeline
-            response['timeline_time_text'] = concat_timeline_text
-        return response
+        result = {}
+        print("parsing this list", response)
+        for item in response:
+            concat_timeline += item.text + ' '
+            concat_timeline_text += f'{item.start}-{item.end} : {item.text}\n'
+        result['timeline_text'] = concat_timeline
+        result['timeline_time_text'] = concat_timeline_text
+        result['timeline'] = [t.model_dump() for t in response]
+        return result
     def post(self):
         print("Parsing file...")
         if 'Authorization' not in request.headers:
@@ -48,29 +51,23 @@ class AudioToText(Resource):
         if file:
             filename = secure_filename(file.filename)
             # result = ''
-            result = {
-                "timeline": [
-                   {"start": 111.0, "end": 112.0, "text": "Every two weeks"},
-                   {"start": 1.0, "end": 1.5, "text": "things are going well"}, 
-                   {"start": 1.5, "end": 1.8, "text": "and business is start"}, 
-                   {"start": 1.8, "end": 2.4, "text": "ing to pick up"}
-                ]
-            }
+            result = {}
             print("File content type", file.content_type)
             # time.sleep(2)
             print("Fetching text from audio...")
             try:
+                file.seek(0)
                 file_byte = file.read()
+                print("Getting transcription count")
                 total_transcript = getTranscriptCount(user_id)
                 if total_transcript > LIMIT:
                     return {'error': 'Limit exceed', 'error_message': 'You reach the upload limit'}, 400
-                result = audioToText(file_byte, file.content_type)
-                result = self.process_response(result)
-                upload_output = newTranscript(result, user_id, file_byte, filename)
-                # print(upload_output)
-                if 'error' in upload_output:
-                    return {'error': upload_output['error'], 'error_message': upload_output['error_message']}, 500
+                print("Sending to celery task ...")
+                transcribe_audio.delay(file_byte, filename, user_id)
+                print("The Transcription is begining")
+                return {'message': 'Transcription is begining'}, 200
             except Exception as e:
+                print(e)
                 return {'error': 'Something went wrong (Audio may unsafe)', 'error_message': str(e)}, 500
             return result
         return {'error': 'No file part'}, 400
